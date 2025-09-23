@@ -1,0 +1,1248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dyad vs Modelica – Physical Modeling Languages Comparison Cheatsheet</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #333;
+            background: #fafafa;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+            background: white;
+            position: relative;
+        }
+
+        /* Mobile menu toggle button */
+        .menu-toggle {
+            display: none;
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 1001;
+            background: #34495e;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .menu-toggle:hover {
+            background: #2c3e50;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 280px;
+            min-width: 280px;
+            background: #f5f5f5;
+            border-right: 1px solid #e0e0e0;
+            padding: 30px 25px;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            flex-shrink: 0;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar h3 {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #333;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            margin-bottom: 25px;
+            padding-left: 0;
+        }
+
+        .sidebar li {
+            margin-bottom: 10px;
+        }
+
+        .sidebar a {
+            color: #666;
+            text-decoration: none;
+            font-size: 14px;
+            display: block;
+            padding: 5px 10px;
+            border-radius: 3px;
+            transition: all 0.2s;
+        }
+
+        .sidebar a:hover {
+            color: #000;
+            background: rgba(0,0,0,0.08);
+        }
+
+        .sidebar .section-group {
+            margin-bottom: 30px;
+        }
+
+        /* Main content */
+        .content {
+            flex: 1;
+            padding: 30px 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .content h1 {
+            font-size: 36px;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        .subtitle {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 40px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+            padding: 25px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border: 1px solid #e8e8e8;
+        }
+
+        .section h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #2c3e50;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e8e8e8;
+        }
+
+        .section h3 {
+            font-size: 18px;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            color: #34495e;
+        }
+
+        /* Code comparison blocks */
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .comparison-block {
+            border-radius: 6px;
+            padding: 0;
+            border: 1px solid #e0e0e0;
+            overflow: hidden;
+        }
+
+        .comparison-block h3 {
+            font-size: 14px;
+            font-weight: bold;
+            margin: 0;
+            padding: 8px 15px;
+            color: white;
+        }
+
+        /* Language-specific colors - header backgrounds */
+        .modelica h3 {
+            background: #ff4444;
+        }
+
+        .dyad h3 {
+            background: #9b59b6;
+        }
+
+        /* Code blocks with light backgrounds matching language colors */
+        .modelica pre {
+            background: #fef5f5;  /* Light red background */
+            border-top: none;
+            margin: 0;
+            border-radius: 0;
+        }
+
+        .dyad pre {
+            background: #f8f0fc;  /* Light purple background */
+            border-top: none;
+            margin: 0;
+            border-radius: 0;
+        }
+
+        /* General pre and code styling */
+        pre {
+            padding: 15px;
+            overflow-x: auto;
+            font-family: Consolas, Monaco, 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.4;
+            color: #333;
+            white-space: pre;
+        }
+
+        code {
+            font-family: Consolas, Monaco, 'Courier New', monospace;
+            background: transparent;
+            padding: 0;
+            font-size: 12px;
+            color: #333;
+        }
+
+        /* Syntax highlighting with darker colors for readability on light backgrounds */
+        .keyword { color: #d73a49; font-weight: bold; }
+        .string { color: #032f62; }
+        .number { color: #005cc5; }
+        .comment { color: #6a737d; font-style: italic; }
+        .operator { color: #d73a49; }
+        .function { color: #6f42c1; }
+        .variable { color: #005cc5; }
+        .type { color: #22863a; font-weight: bold; }
+
+        /* Info boxes */
+        .info-box {
+            background: #f0f7ff;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #f39c12;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+
+        /* Table styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        th {
+            background: #2c3e50;
+            color: white;
+            padding: 10px 12px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        th:first-child {
+            width: 200px;
+            background: #34495e;
+        }
+
+        td {
+            padding: 8px 12px;
+            border-bottom: 1px solid #e8ecef;
+            vertical-align: top;
+            font-size: 12px;
+        }
+
+        td:first-child {
+            background: #f9f9f9;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        /* Alternate coloring for Modelica and Dyad columns */
+        td:nth-child(2) {
+            background: #fef5f5;  /* Light red for Modelica */
+        }
+
+        td:nth-child(3) {
+            background: #f8f0fc;  /* Light purple for Dyad */
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Alternating row colors */
+        tr:nth-child(even) td:nth-child(2) {
+            background: #fef0f0;  /* Slightly darker red */
+        }
+
+        tr:nth-child(even) td:nth-child(3) {
+            background: #f5e8fc;  /* Slightly darker purple */
+        }
+
+        tr:nth-child(even) td:first-child {
+            background: #f5f5f5;
+        }
+
+        /* Hover effects */
+        tr:hover td:nth-child(2) {
+            background: #fee8e8 !important;
+        }
+
+        tr:hover td:nth-child(3) {
+            background: #f0e0fc !important;
+        }
+
+        tr:hover td:first-child {
+            background: #e8ecef !important;
+        }
+
+        /* Code in tables */
+        td code {
+            display: block;
+            background: transparent;
+            padding: 0;
+            white-space: pre;
+            line-height: 1.4;
+            color: #333;
+        }
+
+        /* Mobile responsive styles */
+        @media (max-width: 768px) {
+            .menu-toggle {
+                display: block;
+            }
+
+            .sidebar {
+                position: fixed;
+                transform: translateX(-100%);
+                z-index: 1000;
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .content {
+                padding: 60px 20px 20px 20px;
+            }
+
+            .content h1 {
+                font-size: 28px;
+            }
+
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+
+            pre {
+                font-size: 12px;
+                padding: 10px;
+            }
+        }
+
+        /* Print styles */
+        @media print {
+            .sidebar, .menu-toggle {
+                display: none;
+            }
+
+            .content {
+                max-width: 100%;
+                padding: 0;
+            }
+
+            .section {
+                box-shadow: none;
+                border: 1px solid #ddd;
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="menu-toggle" onclick="toggleSidebar()">☰ Menu</button>
+
+    <div class="container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar" id="sidebar">
+            <h3>Quick Navigation</h3>
+
+            <div class="section-group">
+                <ul>
+                    <li><a href="#basics">Basic Syntax</a></li>
+                    <li><a href="#defining-components">Defining Components</a></li>
+                    <li><a href="#functions">Functions & Algorithms</a></li>
+                    <li><a href="#analysis-points">Analysis Points</a></li>
+                    <li><a href="#analyzing-models">Analyzing Models</a></li>
+                    <li><a href="#examples">Composite Models using Standard Library</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="content">
+            <h1>Dyad vs Modelica Comparison</h1>
+            <p class="subtitle">A comprehensive comparison of physical modeling languages for scientific computing</p>
+
+            <!-- Basic Syntax Section -->
+            <section id="basics" class="section">
+                <h2>Basic Syntax</h2>
+
+                <h3>Simple ODE</h3>
+                <div class="comparison-grid">
+                    <div class="comparison-block modelica">
+                        <h3>Modelica</h3>
+                        <pre><span class="keyword">model</span> <span class="type">SimpleODE</span>
+  <span class="type">Real</span> <span class="variable">x</span>(<span class="variable">start</span>=<span class="number">1.0</span>);
+  <span class="keyword">parameter</span> <span class="type">Real</span> <span class="variable">k</span> = <span class="number">0.5</span>;
+<span class="keyword">equation</span>
+  <span class="function">der</span>(<span class="variable">x</span>) = -<span class="variable">k</span> * <span class="variable">x</span>;
+<span class="keyword">end</span> <span class="type">SimpleODE</span>;</pre>
+                    </div>
+
+                    <div class="comparison-block dyad">
+                        <h3>Dyad</h3>
+                        <pre><span class="keyword">component</span> <span class="type">SimpleODE</span>
+  <span class="keyword">parameter</span> <span class="variable">k</span>::<span class="type">Real</span> = <span class="number">0.5</span>
+  <span class="keyword">variable</span> <span class="variable">x</span>::<span class="type">Real</span>(<span class="variable">guess</span>=<span class="number">1.0</span>)
+<span class="keyword">relations</span>
+  <span class="function">der</span>(<span class="variable">x</span>) = -<span class="variable">k</span> * <span class="variable">x</span>
+<span class="keyword">end</span></pre>
+                    </div>
+                </div>
+
+                <h3>Key Differences</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Aspect</th>
+                            <th>Modelica</th>
+                            <th>Dyad</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Primary Keyword</strong></td>
+                            <td><code>model</code></td>
+                            <td><code>component</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Equation Block</strong></td>
+                            <td><code>equation</code></td>
+                            <td><code>relations</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Type Annotation</strong></td>
+                            <td>Type comes before name</td>
+                            <td>Name followed by <code>::Type</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Comments</strong></td>
+                            <td><code>//</code> or <code>/* */</code></td>
+                            <td><code>#</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Statement Terminator</strong></td>
+                            <td>Semicolon required <code>;</code></td>
+                            <td>No semicolon needed</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Initial Values</strong></td>
+                            <td><code>start</code> attribute</td>
+                            <td><code>guess</code> attribute</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Variables & Parameters</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>Modelica</th>
+                            <th>Dyad</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Variable Declaration</td>
+                            <td><code>Real x;</code></td>
+                            <td><code>variable x::Real</code></td>
+                        </tr>
+                        <tr>
+                            <td>Parameter Declaration</td>
+                            <td><code>parameter Real k = 1.0;</code></td>
+                            <td><code>parameter k::Real = 1.0</code></td>
+                        </tr>
+                        <tr>
+                            <td>Input Variable</td>
+                            <td><code>input Real u;</code></td>
+                            <td><code>input u::Real</code></td>
+                        </tr>
+                        <tr>
+                            <td>Output Variable</td>
+                            <td><code>output Real y;</code></td>
+                            <td><code>output y::Real</code></td>
+                        </tr>
+                        <tr>
+                            <td>With Constraints</td>
+                            <td><code>Real x(min=0, max=10);</code></td>
+                            <td><code>variable x::Real(min=0, max=10)</code></td>
+                        </tr>
+                        <tr>
+                            <td>With Units</td>
+                            <td><code>Real x(unit="m");</code></td>
+                            <td><code>variable x::Real(units="m")</code></td>
+                        </tr>
+                        <tr>
+                            <td>Array Variables</td>
+                            <td><code>Real x[3];</code></td>
+                            <td><code>variable x::Vector{Real}(3)</code></td>
+                        </tr>
+                        <tr>
+                            <td>Time Derivative</td>
+                            <td><code>der(x)</code></td>
+                            <td><code>der(x)</code></td>
+                        </tr>
+                        <tr>
+                            <td>Second Derivative</td>
+                            <td><code>der(der(x))</code></td>
+                            <td><code>der(der(x))</code></td>
+                        </tr>
+                        <tr>
+                            <td>Structural Parameters</td>
+                            <td>Not directly supported</td>
+                            <td><code>structural parameter N::Integer</code></td>
+                        </tr>
+                        <tr>
+                            <td>Discrete Variable</td>
+                            <td><code>discrete Real x;</code></td>
+                            <td><code>discrete variable x::Real</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Common Mathematical Operators</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Operation</th>
+                            <th>Modelica</th>
+                            <th>Dyad</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Basic Arithmetic</td>
+                            <td><code>+, -, *, /, ^</code></td>
+                            <td><code>+, -, *, /, ^</code></td>
+                        </tr>
+                        <tr>
+                            <td>Trigonometric</td>
+                            <td><code>sin, cos, tan</code></td>
+                            <td><code>sin, cos, tan</code></td>
+                        </tr>
+                        <tr>
+                            <td>Exponential/Log</td>
+                            <td><code>exp, log, log10</code></td>
+                            <td><code>exp, log, log10</code></td>
+                        </tr>
+                        <tr>
+                            <td>Min/Max</td>
+                            <td><code>min(a,b), max(a,b)</code></td>
+                            <td><code>min(a,b), max(a,b)</code></td>
+                        </tr>
+                        <tr>
+                            <td>Absolute Value</td>
+                            <td><code>abs(x)</code></td>
+                            <td><code>abs(x)</code></td>
+                        </tr>
+                        <tr>
+                            <td>Square Root</td>
+                            <td><code>sqrt(x)</code></td>
+                            <td><code>sqrt(x)</code></td>
+                        </tr>
+                        <tr>
+                            <td>Sign Function</td>
+                            <td><code>sign(x)</code></td>
+                            <td><code>sign(x)</code></td>
+                        </tr>
+                        <tr>
+                            <td>Boolean AND</td>
+                            <td><code>a and b</code></td>
+                            <td><code>a && b</code></td>
+                        </tr>
+                        <tr>
+                            <td>Boolean OR</td>
+                            <td><code>a or b</code></td>
+                            <td><code>a || b</code></td>
+                        </tr>
+                        <tr>
+                            <td>Boolean NOT</td>
+                            <td><code>not a</code></td>
+                            <td><code>!a</code></td>
+                        </tr>
+                        <tr>
+                            <td>Equality</td>
+                            <td><code>a == b</code></td>
+                            <td><code>a == b</code></td>
+                        </tr>
+                        <tr>
+                            <td>Inequality</td>
+                            <td><code>a <> b</code></td>
+                            <td><code>a != b</code></td>
+                        </tr>
+                        <tr>
+                            <td>Time Variable</td>
+                            <td><code>time</code></td>
+                            <td><code>time</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Defining Components Section -->
+            <section id="defining-components" class="section">
+                <h2>Defining Components</h2>
+
+                <h3>Component Documentation</h3>
+                <div class="comparison-grid">
+                    <div class="comparison-block modelica">
+                        <h3>Modelica</h3>
+                        <pre><span class="keyword">model</span> <span class="type">FirstOrder</span> <span class="string">"First order transfer function"</span>
+  <span class="keyword">parameter</span> <span class="type">Real</span> <span class="variable">k</span> = <span class="number">1</span> <span class="string">"Gain"</span>;
+  <span class="keyword">parameter</span> <span class="type">Time</span> <span class="variable">T</span> = <span class="number">1</span> <span class="string">"Time constant"</span>;
+  <span class="type">Real</span> <span class="variable">x</span> <span class="string">"State variable"</span>;
+  <span class="keyword">input</span> <span class="type">Real</span> <span class="variable">u</span> <span class="string">"Input signal"</span>;
+  <span class="keyword">output</span> <span class="type">Real</span> <span class="variable">y</span> <span class="string">"Output signal"</span>;
+<span class="keyword">equation</span>
+  <span class="function">der</span>(<span class="variable">x</span>) = (<span class="variable">u</span> - <span class="variable">x</span>) / <span class="variable">T</span>;
+  <span class="variable">y</span> = <span class="variable">k</span> * <span class="variable">x</span>;
+<span class="keyword">end</span> <span class="type">FirstOrder</span>;</pre>
+                    </div>
+
+                    <div class="comparison-block dyad">
+                        <h3>Dyad</h3>
+                        <pre><span class="keyword">component</span> <span class="type">FirstOrder</span>
+  <span class="string">"""
+  First order transfer function
+
+  y = k / (T*s + 1) * u
+
+  where k is the gain and T is the time constant
+  """</span>
+
+  <span class="keyword">parameter</span> <span class="variable">k</span>::<span class="type">Real</span> = <span class="number">1</span> <span class="comment"># Gain</span>
+  <span class="keyword">parameter</span> <span class="variable">T</span>::<span class="type">Time</span> = <span class="number">1</span> <span class="comment"># Time constant</span>
+
+  <span class="keyword">variable</span> <span class="variable">x</span>::<span class="type">Real</span> <span class="comment"># State of FirstOrder filter</span>
+
+  <span class="keyword">input</span> <span class="variable">u</span>::<span class="type">Real</span> <span class="comment"># Input signal</span>
+  <span class="keyword">output</span> <span class="variable">y</span>::<span class="type">Real</span> <span class="comment"># Output signal</span>
+
+<span class="keyword">relations</span>
+  <span class="function">der</span>(<span class="variable">x</span>) = (<span class="variable">u</span> - <span class="variable">x</span>) / <span class="variable">T</span>
+  <span class="variable">y</span> = <span class="variable">k</span> * <span class="variable">x</span>
+<span class="keyword">end</span></pre>
+                    </div>
+                </div>
+
+                <h3>Composite Components</h3>
+                <div class="comparison-grid">
+                    <div class="comparison-block modelica">
+                        <h3>Modelica</h3>
+                        <pre><span class="keyword">model</span> <span class="type">ElectricCircuit</span>
+  <span class="type">Resistor</span> <span class="variable">R1</span>(<span class="variable">R</span>=<span class="number">100</span>);
+  <span class="type">Capacitor</span> <span class="variable">C1</span>(<span class="variable">C</span>=<span class="number">1e-6</span>);
+  <span class="type">Ground</span> <span class="variable">ground</span>;
+<span class="keyword">equation</span>
+  <span class="function">connect</span>(<span class="variable">R1</span>.<span class="variable">p</span>, <span class="variable">C1</span>.<span class="variable">p</span>);
+  <span class="function">connect</span>(<span class="variable">C1</span>.<span class="variable">n</span>, <span class="variable">ground</span>.<span class="variable">p</span>);
+<span class="keyword">end</span> <span class="type">ElectricCircuit</span>;</pre>
+                    </div>
+
+                    <div class="comparison-block dyad">
+                        <h3>Dyad</h3>
+                        <pre><span class="keyword">component</span> <span class="type">ElectricCircuit</span>
+  <span class="variable">R1</span> = <span class="type">Resistor</span>(<span class="variable">R</span>=<span class="number">100</span>)
+  <span class="variable">C1</span> = <span class="type">Capacitor</span>(<span class="variable">C</span>=<span class="number">1e-6</span>)
+  <span class="variable">ground</span> = <span class="type">Ground</span>()
+<span class="keyword">relations</span>
+  <span class="function">connect</span>(<span class="variable">R1</span>.<span class="variable">p</span>, <span class="variable">C1</span>.<span class="variable">p</span>)
+  <span class="function">connect</span>(<span class="variable">C1</span>.<span class="variable">n</span>, <span class="variable">ground</span>.<span class="variable">p</span>)
+<span class="keyword">end</span></pre>
+                    </div>
+                </div>
+
+                <h3>Equations & Relations</h3>
+                <div class="comparison-grid">
+                    <div class="comparison-block modelica">
+                        <h3>Modelica</h3>
+                        <pre><span class="keyword">equation</span>
+  <span class="comment">// Differential equation</span>
+  <span class="function">der</span>(<span class="variable">x</span>) = -<span class="variable">k</span> * <span class="variable">x</span>;
+
+  <span class="comment">// Algebraic equation</span>
+  <span class="variable">y</span> = <span class="variable">x</span> + <span class="variable">u</span>;
+
+  <span class="comment">// Conditional equation</span>
+  <span class="keyword">if</span> <span class="variable">x</span> > <span class="number">0</span> <span class="keyword">then</span>
+    <span class="variable">z</span> = <span class="variable">x</span> * <span class="number">2</span>;
+  <span class="keyword">else</span>
+    <span class="variable">z</span> = <span class="number">0</span>;
+  <span class="keyword">end if</span>;</pre>
+                    </div>
+
+                    <div class="comparison-block dyad">
+                        <h3>Dyad</h3>
+                        <pre><span class="keyword">relations</span>
+  <span class="comment"># Differential equation</span>
+  <span class="function">der</span>(<span class="variable">x</span>) = -<span class="variable">k</span> * <span class="variable">x</span>
+
+  <span class="comment"># Algebraic equation</span>
+  <span class="variable">y</span> = <span class="variable">x</span> + <span class="variable">u</span>
+
+  <span class="comment"># Conditional expression</span>
+  <span class="variable">z</span> = <span class="keyword">if</span> <span class="variable">x</span> > <span class="number">0</span> <span class="keyword">then</span>
+    <span class="variable">x</span> * <span class="number">2</span>
+  <span class="keyword">else</span>
+    <span class="number">0</span>
+  <span class="keyword">end</span></pre>
+                    </div>
+                </div>
+
+                <h3>Connectors & Connections</h3>
+                <div class="comparison-grid">
+                    <div class="comparison-block modelica">
+                        <h3>Modelica</h3>
+                        <pre><span class="keyword">connector</span> <span class="type">Pin</span>
+  <span class="type">Voltage</span> <span class="variable">v</span>;
+  <span class="keyword">flow</span> <span class="type">Current</span> <span class="variable">i</span>;
+<span class="keyword">end</span> <span class="type">Pin</span>;
+
+<span class="keyword">model</span> <span class="type">Component</span>
+  <span class="type">Pin</span> <span class="variable">p</span>, <span class="variable">n</span>;
+<span class="keyword">equation</span>
+  <span class="function">connect</span>(<span class="variable">p</span>, <span class="variable">other</span>.<span class="variable">n</span>);
+<span class="keyword">end</span> <span class="type">Component</span>;</pre>
+                    </div>
+
+                    <div class="comparison-block dyad">
+                        <h3>Dyad</h3>
+                        <pre><span class="keyword">connector</span> <span class="type">Pin</span>
+  <span class="keyword">variable</span> <span class="variable">v</span>::<span class="type">Voltage</span>
+  <span class="keyword">flow variable</span> <span class="variable">i</span>::<span class="type">Current</span>
+<span class="keyword">end</span>
+
+<span class="keyword">component</span> <span class="type">Component</span>
+  <span class="keyword">connector</span> <span class="variable">p</span> = <span class="type">Pin</span>()
+  <span class="keyword">connector</span> <span class="variable">n</span> = <span class="type">Pin</span>()
+<span class="keyword">relations</span>
+  <span class="function">connect</span>(<span class="variable">p</span>, <span class="variable">other</span>.<span class="variable">n</span>)
+<span class="keyword">end</span></pre>
+                    </div>
+                </div>
+
+                <h3>External Components (Imperatively-Generated Components)</h3>
+                <div class="comparison-grid">
+                    <div class="comparison-block modelica">
+                        <h3>Modelica</h3>
+                        <pre><span class="comment">// Not supported in Modelica</span></pre>
+                    </div>
+
+                    <div class="comparison-block dyad">
+                        <h3>Dyad</h3>
+                        <pre><span class="comment"># Julia function to generate MTK model</span>
+<span class="keyword">function</span> <span class="function">make_RLC</span>(<span class="variable">name</span>; <span class="variable">R</span>=<span class="number">1.0</span>, <span class="variable">L</span>=<span class="number">1.0</span>, <span class="variable">C</span>=<span class="number">1.0</span>)
+  <span class="keyword">using</span> <span class="type">ModelingToolkit</span>
+
+  @<span class="variable">variables</span> <span class="variable">t</span>
+  @<span class="variable">variables</span> <span class="variable">v_R</span>(<span class="variable">t</span>) <span class="variable">v_L</span>(<span class="variable">t</span>) <span class="variable">v_C</span>(<span class="variable">t</span>) <span class="variable">i</span>(<span class="variable">t</span>) <span class="variable">q</span>(<span class="variable">t</span>)
+  @<span class="variable">parameters</span> <span class="variable">R</span>=<span class="variable">R</span> <span class="variable">L</span>=<span class="variable">L</span> <span class="variable">C</span>=<span class="variable">C</span>
+
+  @<span class="variable">equations</span> <span class="keyword">begin</span>
+    <span class="variable">v_R</span> ~ <span class="variable">R</span> * <span class="variable">i</span>
+    <span class="variable">v_L</span> ~ <span class="variable">L</span> * <span class="function">D</span>(<span class="variable">i</span>)
+    <span class="variable">v_C</span> ~ <span class="variable">q</span> / <span class="variable">C</span>
+    <span class="function">D</span>(<span class="variable">q</span>) ~ <span class="variable">i</span>
+    <span class="comment"># KVL: v_total = v_R + v_L + v_C</span>
+  <span class="keyword">end</span>
+
+  <span class="keyword">return</span> <span class="type">ODESystem</span>(<span class="variable">eqs</span>, <span class="variable">t</span>, <span class="variable">name</span>=<span class="variable">name</span>)
+<span class="keyword">end</span>
+
+<span class="comment"># Define Dyad interface for RLC circuit</span>
+<span class="keyword">partial component</span> <span class="type">PartialRLC</span>
+  <span class="keyword">parameter</span> <span class="variable">R</span>::<span class="type">Resistance</span> = <span class="number">1.0</span>
+  <span class="keyword">parameter</span> <span class="variable">L</span>::<span class="type">Inductance</span> = <span class="number">1.0</span>
+  <span class="keyword">parameter</span> <span class="variable">C</span>::<span class="type">Capacitance</span> = <span class="number">1.0</span>
+  <span class="keyword">connector</span> <span class="variable">p</span> = <span class="type">Pin</span>()
+  <span class="keyword">connector</span> <span class="variable">n</span> = <span class="type">Pin</span>()
+<span class="keyword">end</span>
+
+<span class="comment"># External component generated by Julia/MTK</span>
+<span class="keyword">external component</span> <span class="type">RLC</span>
+  <span class="keyword">extends</span> <span class="type">PartialRLC</span>
+<span class="keyword">end</span>
+
+<span class="comment"># Use in Dyad model</span>
+<span class="keyword">component</span> <span class="type">Circuit</span>
+  <span class="variable">rlc</span> = <span class="type">RLC</span>(<span class="variable">R</span>=<span class="number">100</span>, <span class="variable">L</span>=<span class="number">0.1</span>, <span class="variable">C</span>=<span class="number">1e-6</span>)
+  <span class="comment"># Connect and use like any other component</span>
+<span class="keyword">end</span></pre>
+                    </div>
+                </div>
+
+                <h3>FMU Components</h3>
+                <div class="comparison-grid">
+                    <div class="comparison-block modelica">
+                        <h3>Modelica</h3>
+                        <pre><span class="comment">// FMI standard supported</span>
+<span class="comment">// Import FMUs using tool-specific features</span>
+<span class="comment">// (varies by Modelica tool)</span></pre>
+                    </div>
+
+                    <div class="comparison-block dyad">
+                        <h3>Dyad</h3>
+                        <pre><span class="comment"># Define interface for FMU component</span>
+<span class="keyword">partial component</span> <span class="type">PartialMotorFMU</span>
+  <span class="keyword">parameter</span> <span class="variable">J</span>::<span class="type">Inertia</span> = <span class="number">0.1</span>
+  <span class="keyword">input</span> <span class="variable">tau</span>::<span class="type">Torque</span>
+  <span class="keyword">output</span> <span class="variable">w</span>::<span class="type">AngularVelocity</span>
+<span class="keyword">end</span>
+
+<span class="comment"># External component from FMU</span>
+<span class="keyword">external component</span> <span class="type">MotorFMU</span>
+  <span class="keyword">extends</span> <span class="type">PartialMotorFMU</span>
+<span class="keyword">end</span>
+
+<span class="comment"># Julia code to load FMU</span>
+<span class="keyword">function</span> <span class="function">make_MotorFMU</span>(<span class="variable">name</span>; <span class="variable">kwargs</span>...)
+  <span class="keyword">using</span> <span class="type">FMI</span>, <span class="type">FMIImport</span>
+
+  <span class="variable">fmu</span> = <span class="function">loadFMU</span>(<span class="string">"motor.fmu"</span>)
+  <span class="variable">component</span> = <span class="type">FMIComponent</span>(<span class="variable">name</span>, <span class="variable">fmu</span>; <span class="variable">kwargs</span>...)
+
+  <span class="keyword">return</span> <span class="variable">component</span>
+<span class="keyword">end</span></pre>
+                    </div>
+                </div>
+
+                <h3>Inheritance & Extension</h3>
+                <div class="comparison-grid">
+                    <div class="comparison-block modelica">
+                        <h3>Modelica</h3>
+                        <pre><span class="keyword">partial model</span> <span class="type">BaseModel</span>
+  <span class="type">Real</span> <span class="variable">x</span>;
+<span class="keyword">equation</span>
+  <span class="function">der</span>(<span class="variable">x</span>) = <span class="function">f</span>(<span class="variable">x</span>);
+<span class="keyword">end</span> <span class="type">BaseModel</span>;
+
+<span class="keyword">model</span> <span class="type">SpecificModel</span>
+  <span class="keyword">extends</span> <span class="type">BaseModel</span>;
+  <span class="keyword">parameter</span> <span class="type">Real</span> <span class="variable">k</span> = <span class="number">1.0</span>;
+<span class="keyword">equation</span>
+  <span class="function">f</span>(<span class="variable">x</span>) = -<span class="variable">k</span> * <span class="variable">x</span>;
+<span class="keyword">end</span> <span class="type">SpecificModel</span>;</pre>
+                    </div>
+
+                    <div class="comparison-block dyad">
+                        <h3>Dyad</h3>
+                        <pre><span class="keyword">abstract component</span> <span class="type">BaseComponent</span>
+  <span class="keyword">variable</span> <span class="variable">x</span>::<span class="type">Real</span>
+<span class="keyword">relations</span>
+  <span class="function">der</span>(<span class="variable">x</span>) = <span class="function">f</span>(<span class="variable">x</span>)
+<span class="keyword">end</span>
+
+<span class="keyword">component</span> <span class="type">SpecificComponent</span>
+  <span class="keyword">extends</span> <span class="type">BaseComponent</span>
+  <span class="keyword">parameter</span> <span class="variable">k</span>::<span class="type">Real</span> = <span class="number">1.0</span>
+<span class="keyword">relations</span>
+  <span class="function">f</span>(<span class="variable">x</span>) = -<span class="variable">k</span> * <span class="variable">x</span>
+<span class="keyword">end</span></pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Functions & Algorithms Section -->
+            <section id="functions" class="section">
+                <h2>Functions & Algorithms</h2>
+
+<h3>Defining Imperative Functions</h3>
+                <div class="comparison-grid">
+                    <div class="comparison-block modelica">
+                        <h3>Modelica</h3>
+                        <pre><span class="keyword">model</span> <span class="type">AlgorithmExample</span>
+  <span class="type">Real</span> <span class="variable">x</span>, <span class="variable">y</span>, <span class="variable">z</span>;
+<span class="keyword">equation</span>
+  <span class="function">der</span>(<span class="variable">x</span>) = -<span class="variable">x</span>;
+<span class="keyword">algorithm</span>
+  <span class="comment">// Sequential imperative assignments</span>
+  <span class="keyword">if</span> <span class="variable">x</span> > <span class="number">0.5</span> <span class="keyword">then</span>
+    <span class="variable">y</span> := <span class="number">2</span> * <span class="variable">x</span>;
+  <span class="keyword">else</span>
+    <span class="variable">y</span> := <span class="variable">x</span> / <span class="number">2</span>;
+  <span class="keyword">end if</span>;
+  <span class="variable">z</span> := <span class="variable">y</span> + <span class="function">sin</span>(<span class="variable">time</span>);
+<span class="keyword">end</span> <span class="type">AlgorithmExample</span>;</pre>
+                    </div>
+
+                    <div class="comparison-block dyad">
+                        <h3>Dyad</h3>
+                        <pre><span class="comment"># Define Julia function for algorithm</span>
+<span class="keyword">function</span> <span class="function">compute_yz</span>(<span class="variable">x</span>, <span class="variable">t</span>)
+  <span class="keyword">if</span> <span class="variable">x</span> > <span class="number">0.5</span>
+    <span class="variable">y</span> = <span class="number">2</span> * <span class="variable">x</span>
+  <span class="keyword">else</span>
+    <span class="variable">y</span> = <span class="variable">x</span> / <span class="number">2</span>
+  <span class="keyword">end</span>
+  <span class="variable">z</span> = <span class="variable">y</span> + <span class="function">sin</span>(<span class="variable">t</span>)
+  <span class="keyword">return</span> <span class="variable">y</span>, <span class="variable">z</span>
+<span class="keyword">end</span>
+
+<span class="comment"># Use in Dyad component</span>
+<span class="keyword">using</span> <span class="type">MyModule</span>: <span class="function">compute_yz</span>
+
+<span class="keyword">component</span> <span class="type">AlgorithmExample</span>
+  <span class="keyword">variable</span> <span class="variable">x</span>, <span class="variable">y</span>, <span class="variable">z</span>::<span class="type">Real</span>
+<span class="keyword">relations</span>
+  <span class="function">der</span>(<span class="variable">x</span>) = -<span class="variable">x</span>
+  (<span class="variable">y</span>, <span class="variable">z</span>) = <span class="function">compute_yz</span>(<span class="variable">x</span>, <span class="variable">time</span>)
+<span class="keyword">end</span></pre>
+                    </div>
+                </div>
+
+                <h3>External C Functions</h3>
+                <div class="comparison-grid">
+                    <div class="comparison-block modelica">
+                        <h3>Modelica</h3>
+                        <pre><span class="keyword">function</span> <span class="type">externalFunction</span>
+  <span class="keyword">input</span> <span class="type">Real</span> <span class="variable">x</span>;
+  <span class="keyword">output</span> <span class="type">Real</span> <span class="variable">y</span>;
+  <span class="keyword">external</span> <span class="string">"C"</span> <span class="variable">y</span> = <span class="function">my_c_function</span>(<span class="variable">x</span>)
+    <span class="keyword">annotation</span>(<span class="variable">Include</span>=<span class="string">"#include \"mylib.h\""</span>,
+               <span class="variable">Library</span>=<span class="string">"mylib"</span>);
+<span class="keyword">end</span> <span class="type">externalFunction</span>;</pre>
+                    </div>
+
+                    <div class="comparison-block dyad">
+                        <h3>Dyad</h3>
+                        <pre><span class="comment"># Call Julia's ccall for C functions</span>
+<span class="function">my_c_function</span>(<span class="variable">x</span>::<span class="type">Float64</span>) =
+  <span class="function">ccall</span>((:<span class="variable">my_c_function</span>, <span class="string">"mylib"</span>),
+        <span class="type">Float64</span>, (<span class="type">Float64</span>,), <span class="variable">x</span>)
+
+<span class="comment"># Import for use in Dyad</span>
+<span class="keyword">using</span> <span class="type">MyModule</span>: <span class="function">my_c_function</span>(::Real)::Real</pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Analysis Points Section -->
+            <section id="analysis-points" class="section">
+                <h2>Analysis Points</h2>
+
+                <div class="info-box">
+                    <strong>Note:</strong> Analysis points are special constructs in Dyad that allow manipulation of signal connections for analysis purposes like linearization, sensitivity analysis, and loop openings.
+                </div>
+
+                <div class="comparison-grid">
+                    <div class="comparison-block modelica">
+                        <h3>Modelica</h3>
+                        <pre><span class="comment">// Not in the Modelica language</span></pre>
+                    </div>
+
+                    <div class="comparison-block dyad">
+                        <h3>Dyad</h3>
+                        <pre><span class="keyword">component</span> <span class="type">ControlledMotor</span>
+  <span class="variable">controller</span> = <span class="type">PIDController</span>()
+  <span class="variable">motor</span> = <span class="type">DCMotor</span>()
+  <span class="variable">speed_sensor</span> = <span class="type">SpeedSensor</span>()
+  <span class="variable">reference</span> = <span class="type">StepSignal</span>()
+
+  <span class="comment"># Define analysis points for control analysis</span>
+  <span class="variable">u</span>: <span class="function">analysis_point</span>(<span class="variable">controller</span>.<span class="variable">y</span>, <span class="variable">motor</span>.<span class="variable">input</span>)
+  <span class="variable">y</span>: <span class="function">analysis_point</span>(<span class="variable">speed_sensor</span>.<span class="variable">w</span>, <span class="variable">controller</span>.<span class="variable">feedback</span>)
+  <span class="variable">r</span>: <span class="function">analysis_point</span>(<span class="variable">reference</span>.<span class="variable">y</span>, <span class="variable">controller</span>.<span class="variable">setpoint</span>)
+
+<span class="keyword">relations</span>
+  <span class="comment"># Regular connections preserved</span>
+  <span class="function">connect</span>(<span class="variable">motor</span>.<span class="variable">shaft</span>, <span class="variable">speed_sensor</span>.<span class="variable">flange</span>)
+<span class="keyword">end</span>
+
+<span class="comment"># Use for linearization and analysis</span>
+<span class="keyword">analysis</span> <span class="type">FrequencyResponse</span>
+  <span class="variable">model</span> = <span class="type">ControlledMotor</span>()
+  <span class="comment"># Analyze loop transfer function from r to y</span>
+  <span class="function">linearize</span>(<span class="variable">model</span>, <span class="variable">model</span>.<span class="variable">r</span>, <span class="variable">model</span>.<span class="variable">y</span>)
+<span class="keyword">end</span></pre>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <strong>Analysis Point Syntax:</strong> <code>name: analysis_point(output_signal, input_signal)</code><br>
+                    Enables model transformations for control systems analysis without altering simulation behavior.
+                </div>
+            </section>
+
+            <!-- Analyzing Models Section -->
+            <section id="analyzing-models" class="section">
+                <h2>Analyzing Models</h2>
+
+                <h3>Transient Simulation</h3>
+                <div class="comparison-grid">
+                    <div class="comparison-block modelica">
+                        <h3>Modelica</h3>
+                        <pre><span class="keyword">model</span> <span class="type">TransientModel</span>
+  <span class="keyword">extends</span> <span class="type">MyModel</span>;
+  <span class="comment">// Simulation settings in tool</span>
+<span class="keyword">annotation</span>(
+  <span class="variable">experiment</span>(
+    <span class="variable">StartTime</span> = <span class="number">0</span>,
+    <span class="variable">StopTime</span> = <span class="number">10</span>,
+    <span class="variable">Interval</span> = <span class="number">0.01</span>,
+    <span class="variable">Tolerance</span> = <span class="number">1e-6</span>
+  )
+);
+<span class="keyword">end</span> <span class="type">TransientModel</span>;</pre>
+                    </div>
+
+                    <div class="comparison-block dyad">
+                        <h3>Dyad</h3>
+                        <pre><span class="keyword">analysis</span> <span class="type">TransientSimulation</span>
+  <span class="keyword">extends</span> <span class="type">TransientAnalysis</span>(
+    <span class="variable">alg</span>=<span class="string">"Rodas5P"</span>,
+    <span class="variable">tspan</span>=(<span class="number">0.0</span>, <span class="number">10.0</span>),
+    <span class="variable">dt</span>=<span class="number">0.01</span>,
+    <span class="variable">abstol</span>=<span class="number">1e-6</span>,
+    <span class="variable">reltol</span>=<span class="number">1e-3</span>
+  )
+  <span class="variable">model</span> = <span class="type">MyComponent</span>()
+<span class="keyword">relations</span>
+  <span class="comment"># Initial conditions</span>
+  <span class="variable">model</span>.<span class="variable">x</span> = <span class="number">1.0</span> @ <span class="variable">t</span>=<span class="number">0</span>
+<span class="keyword">end</span></pre>
+                    </div>
+                </div>
+
+                <h3>Steady State Simulation</h3>
+                <div class="comparison-grid">
+                    <div class="comparison-block modelica">
+                        <h3>Modelica</h3>
+                        <pre><span class="keyword">model</span> <span class="type">SteadyStateModel</span>
+  <span class="keyword">extends</span> <span class="type">MyModel</span>;
+<span class="keyword">initial equation</span>
+  <span class="comment">// Set derivatives to zero</span>
+  <span class="function">der</span>(<span class="variable">x</span>) = <span class="number">0</span>;
+  <span class="function">der</span>(<span class="variable">y</span>) = <span class="number">0</span>;
+<span class="keyword">end</span> <span class="type">SteadyStateModel</span>;</pre>
+                    </div>
+
+                    <div class="comparison-block dyad">
+                        <h3>Dyad</h3>
+                        <pre><span class="keyword">analysis</span> <span class="type">SteadyStateSimulation</span>
+  <span class="keyword">extends</span> <span class="type">SteadyStateAnalysis</span>(
+    <span class="variable">alg</span>=<span class="string">"TrustRegion"</span>,
+    <span class="variable">abstol</span>=<span class="number">1e-8</span>,
+    <span class="variable">maxiter</span>=<span class="number">1000</span>
+  )
+  <span class="variable">model</span> = <span class="type">MyComponent</span>()
+<span class="keyword">relations</span>
+  <span class="comment"># Constraints for steady state</span>
+  <span class="variable">model</span>.<span class="variable">input</span> = <span class="number">5.0</span>
+<span class="keyword">end</span></pre>
+                    </div>
+                </div>
+
+                <h3>Parameter Calibration</h3>
+                <div class="comparison-grid">
+                    <div class="comparison-block modelica">
+                        <h3>Modelica</h3>
+                        <pre><span class="comment">// Not part of the Modelica language.</span></pre>
+                    </div>
+
+                    <div class="comparison-block dyad">
+                        <h3>Dyad</h3>
+                        <pre><span class="keyword">analysis</span> <span class="type">CalibrationAnalysis</span>
+  <span class="keyword">extends</span> <span class="type">ParameterCalibration</span>(
+    <span class="variable">alg</span>=<span class="string">"Optim.BFGS"</span>,
+    <span class="variable">loss</span>=<span class="string">"L2"</span>,
+    <span class="variable">maxiter</span>=<span class="number">1000</span>,
+    <span class="variable">experimental_data</span>=<span class="variable">data_file</span>
+  )
+  <span class="variable">model</span> = <span class="type">MyComponent</span>()
+
+  <span class="comment"># Define calibration parameters</span>
+  <span class="keyword">calibration_parameter</span> <span class="variable">model</span>.<span class="variable">k</span> ∈ [<span class="number">0</span>, <span class="number">10</span>]
+
+  <span class="comment"># Define target variables</span>
+  <span class="keyword">target</span> <span class="variable">model</span>.<span class="variable">x</span>
+<span class="keyword">end</span></pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Composite Models using Standard Library Section -->
+            <section id="examples" class="section">
+                <h2>Composite Models using Standard Library</h2>
+
+                <h3>RC Circuit</h3>
+                <div class="comparison-grid">
+                    <div class="comparison-block modelica">
+                        <h3>Modelica</h3>
+                        <pre><span class="keyword">model</span> <span class="type">RCCircuit</span>
+  <span class="comment">// Import standard library</span>
+  <span class="type">Modelica.Electrical.Analog.Basic.Resistor</span> <span class="variable">R</span>(
+    <span class="variable">R</span>=<span class="number">1000</span>);
+  <span class="type">Modelica.Electrical.Analog.Basic.Capacitor</span> <span class="variable">C</span>(
+    <span class="variable">C</span>=<span class="number">1e-6</span>, <span class="variable">v</span>(<span class="variable">start</span>=<span class="number">0</span>, <span class="variable">fixed</span>=<span class="keyword">true</span>));
+  <span class="type">Modelica.Electrical.Analog.Sources.StepVoltage</span> <span class="variable">V</span>(
+    <span class="variable">V</span>=<span class="number">5</span>, <span class="variable">startTime</span>=<span class="number">0</span>);
+  <span class="type">Modelica.Electrical.Analog.Basic.Ground</span> <span class="variable">ground</span>;
+
+<span class="keyword">equation</span>
+  <span class="function">connect</span>(<span class="variable">V</span>.<span class="variable">p</span>, <span class="variable">R</span>.<span class="variable">p</span>);
+  <span class="function">connect</span>(<span class="variable">R</span>.<span class="variable">n</span>, <span class="variable">C</span>.<span class="variable">p</span>);
+  <span class="function">connect</span>(<span class="variable">C</span>.<span class="variable">n</span>, <span class="variable">ground</span>.<span class="variable">p</span>);
+  <span class="function">connect</span>(<span class="variable">ground</span>.<span class="variable">p</span>, <span class="variable">V</span>.<span class="variable">n</span>);
+<span class="keyword">end</span> <span class="type">RCCircuit</span>;</pre>
+                    </div>
+
+                    <div class="comparison-block dyad">
+                        <h3>Dyad</h3>
+                        <pre><span class="comment"># Using standard library</span>
+<span class="keyword">using</span> <span class="type">Dyad.Electrical</span>
+
+<span class="keyword">component</span> <span class="type">RCCircuit</span>
+  <span class="variable">resistor</span> = <span class="type">Resistor</span>(<span class="variable">R</span>=<span class="number">1000</span>)
+  <span class="variable">capacitor</span> = <span class="type">Capacitor</span>(<span class="variable">C</span>=<span class="number">1e-6</span>)
+  <span class="variable">source</span> = <span class="type">StepVoltage</span>(<span class="variable">V</span>=<span class="number">5</span>)
+  <span class="variable">ground</span> = <span class="type">Ground</span>()
+
+<span class="keyword">relations</span>
+  <span class="keyword">initial</span> <span class="variable">capacitor</span>.<span class="variable">v</span> = <span class="number">0</span>
+
+  <span class="function">connect</span>(<span class="variable">source</span>.<span class="variable">p</span>, <span class="variable">resistor</span>.<span class="variable">p</span>)
+  <span class="function">connect</span>(<span class="variable">resistor</span>.<span class="variable">n</span>, <span class="variable">capacitor</span>.<span class="variable">p</span>)
+  <span class="function">connect</span>(<span class="variable">capacitor</span>.<span class="variable">n</span>, <span class="variable">ground</span>.<span class="variable">g</span>)
+  <span class="function">connect</span>(<span class="variable">ground</span>.<span class="variable">g</span>, <span class="variable">source</span>.<span class="variable">n</span>)
+<span class="keyword">end</span></pre>
+                    </div>
+                </div>
+
+                <h3>Mass-Spring-Damper</h3>
+                <div class="comparison-grid">
+                    <div class="comparison-block modelica">
+                        <h3>Modelica</h3>
+                        <pre><span class="keyword">model</span> <span class="type">MassSpringDamper</span>
+  <span class="type">Modelica.Mechanics.Translational.Components.Mass</span> <span class="variable">mass</span>(
+    <span class="variable">m</span>=<span class="number">1.0</span>, <span class="variable">s</span>(<span class="variable">start</span>=<span class="number">1.0</span>), <span class="variable">v</span>(<span class="variable">start</span>=<span class="number">0</span>));
+  <span class="type">Modelica.Mechanics.Translational.Components.Spring</span> <span class="variable">spring</span>(
+    <span class="variable">c</span>=<span class="number">100</span>);
+  <span class="type">Modelica.Mechanics.Translational.Components.Damper</span> <span class="variable">damper</span>(
+    <span class="variable">d</span>=<span class="number">10</span>);
+  <span class="type">Modelica.Mechanics.Translational.Components.Fixed</span> <span class="variable">fixed</span>;
+
+<span class="keyword">equation</span>
+  <span class="function">connect</span>(<span class="variable">mass</span>.<span class="variable">flange_b</span>, <span class="variable">spring</span>.<span class="variable">flange_a</span>);
+  <span class="function">connect</span>(<span class="variable">spring</span>.<span class="variable">flange_b</span>, <span class="variable">fixed</span>.<span class="variable">flange</span>);
+  <span class="function">connect</span>(<span class="variable">mass</span>.<span class="variable">flange_b</span>, <span class="variable">damper</span>.<span class="variable">flange_a</span>);
+  <span class="function">connect</span>(<span class="variable">damper</span>.<span class="variable">flange_b</span>, <span class="variable">fixed</span>.<span class="variable">flange</span>);
+<span class="keyword">end</span> <span class="type">MassSpringDamper</span>;</pre>
+                    </div>
+
+                    <div class="comparison-block dyad">
+                        <h3>Dyad</h3>
+                        <pre><span class="comment"># Using standard library</span>
+<span class="keyword">using</span> <span class="type">Dyad.Mechanical.Translational</span>
+
+<span class="keyword">component</span> <span class="type">MassSpringDamper</span>
+  <span class="variable">mass</span> = <span class="type">Mass</span>(<span class="variable">m</span>=<span class="number">1.0</span>)
+  <span class="variable">spring</span> = <span class="type">Spring</span>(<span class="variable">c</span>=<span class="number">100</span>)
+  <span class="variable">damper</span> = <span class="type">Damper</span>(<span class="variable">d</span>=<span class="number">10</span>)
+  <span class="variable">fixed</span> = <span class="type">Fixed</span>()
+
+<span class="keyword">relations</span>
+  <span class="keyword">initial</span> <span class="variable">mass</span>.<span class="variable">s</span> = <span class="number">1.0</span>
+  <span class="keyword">initial</span> <span class="variable">mass</span>.<span class="variable">v</span> = <span class="number">0</span>
+
+  <span class="function">connect</span>(<span class="variable">mass</span>.<span class="variable">flange_b</span>, <span class="variable">spring</span>.<span class="variable">flange_a</span>)
+  <span class="function">connect</span>(<span class="variable">spring</span>.<span class="variable">flange_b</span>, <span class="variable">fixed</span>.<span class="variable">flange</span>)
+  <span class="function">connect</span>(<span class="variable">mass</span>.<span class="variable">flange_b</span>, <span class="variable">damper</span>.<span class="variable">flange_a</span>)
+  <span class="function">connect</span>(<span class="variable">damper</span>.<span class="variable">flange_b</span>, <span class="variable">fixed</span>.<span class="variable">flange</span>)
+<span class="keyword">end</span></pre>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('active');
+        }
+
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('.sidebar a').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+                const targetElement = document.getElementById(targetId);
+
+                if (targetElement) {
+                    targetElement.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+
+                    // Close sidebar on mobile after clicking
+                    if (window.innerWidth <= 768) {
+                        document.getElementById('sidebar').classList.remove('active');
+                    }
+                }
+            });
+        });
+
+        // Highlight current section in sidebar
+        window.addEventListener('scroll', () => {
+            const sections = document.querySelectorAll('.section');
+            const navLinks = document.querySelectorAll('.sidebar a');
+
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (scrollY >= (sectionTop - 100)) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.style.fontWeight = 'normal';
+                link.style.color = '#666';
+                if (link.getAttribute('href').substring(1) === current) {
+                    link.style.fontWeight = 'bold';
+                    link.style.color = '#000';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
