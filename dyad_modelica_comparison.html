@@ -513,7 +513,7 @@
                         <tr>
                             <td>Array Variables</td>
                             <td><code>Real x[3];</code></td>
-                            <td><code>variable x::Vector{Real}(3)</code></td>
+                            <td><code>variable x[3]::Real</code></td>
                         </tr>
                         <tr>
                             <td>Time Derivative</td>
@@ -648,13 +648,13 @@
   where k is the gain and T is the time constant
   """</span>
 
-  <span class="keyword">parameter</span> <span class="variable">k</span>::<span class="type">Real</span> = <span class="number">1</span> <span class="comment"># Gain</span>
-  <span class="keyword">parameter</span> <span class="variable">T</span>::<span class="type">Time</span> = <span class="number">1</span> <span class="comment"># Time constant</span>
+  <span class="keyword">parameter</span> <span class="variable">k</span>::<span class="type">Real</span> = <span class="number">1</span> <span class="comment">"Gain"</span>
+  <span class="keyword">parameter</span> <span class="variable">T</span>::<span class="type">Time</span> = <span class="number">1</span> <span class="comment">"Time constant"</span>
 
-  <span class="keyword">variable</span> <span class="variable">x</span>::<span class="type">Real</span> <span class="comment"># State of FirstOrder filter</span>
+  <span class="keyword">variable</span> <span class="variable">x</span>::<span class="type">Real</span> <span class="comment">"State of FirstOrder filter"</span>
 
-  <span class="keyword">input</span> <span class="variable">u</span>::<span class="type">Real</span> <span class="comment"># Input signal</span>
-  <span class="keyword">output</span> <span class="variable">y</span>::<span class="type">Real</span> <span class="comment"># Output signal</span>
+  <span class="keyword">input</span> <span class="variable">u</span>::<span class="type">Real</span> <span class="comment">"Input signal"</span>
+  <span class="keyword">output</span> <span class="variable">y</span>::<span class="type">Real</span> <span class="comment">"Output signal"</span>
 
 <span class="keyword">relations</span>
   <span class="function">der</span>(<span class="variable">x</span>) = (<span class="variable">u</span> - <span class="variable">x</span>) / <span class="variable">T</span>
@@ -682,7 +682,7 @@
                         <pre><span class="keyword">component</span> <span class="type">ElectricCircuit</span>
   <span class="variable">R1</span> = <span class="type">Resistor</span>(<span class="variable">R</span>=<span class="number">100</span>)
   <span class="variable">C1</span> = <span class="type">Capacitor</span>(<span class="variable">C</span>=<span class="number">1e-6</span>)
-  <span class="variable">ground</span> = <span class="type">Ground</span>()
+  <span class="variable">ground</span> = <span class="type">ElectricalComponents.Ground</span>()
 <span class="keyword">relations</span>
   <span class="function">connect</span>(<span class="variable">R1</span>.<span class="variable">p</span>, <span class="variable">C1</span>.<span class="variable">p</span>)
   <span class="function">connect</span>(<span class="variable">C1</span>.<span class="variable">n</span>, <span class="variable">ground</span>.<span class="variable">p</span>)
@@ -712,13 +712,13 @@
                     <div class="comparison-block dyad">
                         <h3>Dyad</h3>
                         <pre><span class="keyword">relations</span>
-  <span class="comment"># Differential equation</span>
+  <span class="comment">"Differential equation"</span>
   <span class="function">der</span>(<span class="variable">x</span>) = -<span class="variable">k</span> * <span class="variable">x</span>
 
-  <span class="comment"># Algebraic equation</span>
+  <span class="comment">"Algebraic equation"</span>
   <span class="variable">y</span> = <span class="variable">x</span> + <span class="variable">u</span>
 
-  <span class="comment"># Conditional expression</span>
+  <span class="comment">"Conditional expression"</span>
   <span class="variable">z</span> = <span class="keyword">if</span> <span class="variable">x</span> > <span class="number">0</span> <span class="keyword">then</span>
     <span class="variable">x</span> * <span class="number">2</span>
   <span class="keyword">else</span>
@@ -768,7 +768,7 @@
 
                     <div class="comparison-block dyad">
                         <h3>Dyad</h3>
-                        <pre><span class="comment"># Julia function to generate MTK model</span>
+                        <pre><span class="comment">"Julia function to generate MTK model"</span>
 <span class="keyword">function</span> <span class="function">make_RLC</span>(<span class="variable">name</span>; <span class="variable">R</span>=<span class="number">1.0</span>, <span class="variable">L</span>=<span class="number">1.0</span>, <span class="variable">C</span>=<span class="number">1.0</span>)
   <span class="keyword">using</span> <span class="type">ModelingToolkit</span>
 
@@ -781,13 +781,13 @@
     <span class="variable">v_L</span> ~ <span class="variable">L</span> * <span class="function">D</span>(<span class="variable">i</span>)
     <span class="variable">v_C</span> ~ <span class="variable">q</span> / <span class="variable">C</span>
     <span class="function">D</span>(<span class="variable">q</span>) ~ <span class="variable">i</span>
-    <span class="comment"># KVL: v_total = v_R + v_L + v_C</span>
+    <span class="comment">"KVL: v_total = v_R + v_L + v_C"</span>
   <span class="keyword">end</span>
 
-  <span class="keyword">return</span> <span class="type">ODESystem</span>(<span class="variable">eqs</span>, <span class="variable">t</span>, <span class="variable">name</span>=<span class="variable">name</span>)
+  <span class="keyword">return</span> <span class="type">System</span>(<span class="variable">eqs</span>, <span class="variable">t</span>, <span class="variable">name</span>=<span class="variable">name</span>)
 <span class="keyword">end</span>
 
-<span class="comment"># Define Dyad interface for RLC circuit</span>
+<span class="comment">"Define Dyad interface for RLC circuit"</span>
 <span class="keyword">partial component</span> <span class="type">PartialRLC</span>
   <span class="keyword">parameter</span> <span class="variable">R</span>::<span class="type">Resistance</span> = <span class="number">1.0</span>
   <span class="keyword">parameter</span> <span class="variable">L</span>::<span class="type">Inductance</span> = <span class="number">1.0</span>
@@ -943,13 +943,11 @@
 
                     <div class="comparison-block dyad">
                         <h3>Dyad</h3>
-                        <pre><span class="comment"># Call Julia's ccall for C functions</span>
-<span class="function">my_c_function</span>(<span class="variable">x</span>::<span class="type">Float64</span>) =
-  <span class="function">ccall</span>((:<span class="variable">my_c_function</span>, <span class="string">"mylib"</span>),
-        <span class="type">Float64</span>, (<span class="type">Float64</span>,), <span class="variable">x</span>)
+                        <pre><span class="comment">"Call C functions with @ccall and register"</span>
+<span class="function">my_c_function</span>(<span class="variable">x</span>::<span class="type">Real</span>) = <span class="function">@ccall</span> <span class="string">mylib.my_c_function</span>(<span class="variable">x</span>::<span class="type">Float64</span>)::<span class="type">Float64</span>
 
-<span class="comment"># Import for use in Dyad</span>
-<span class="keyword">using</span> <span class="type">MyModule</span>: <span class="function">my_c_function</span>(::Real)::Real</pre>
+<span class="comment">"Register the function for symbolic use"</span>
+<span class="function">@register_symbolic</span> <span class="function">my_c_function</span>(<span class="variable">x</span>)</pre>
                     </div>
                 </div>
             </section>
@@ -1126,14 +1124,12 @@
 
                     <div class="comparison-block dyad">
                         <h3>Dyad</h3>
-                        <pre><span class="comment"># Using standard library</span>
-<span class="keyword">using</span> <span class="type">Dyad.Electrical</span>
-
+                        <pre><span class="comment">"Using standard library"</span>
 <span class="keyword">component</span> <span class="type">RCCircuit</span>
-  <span class="variable">resistor</span> = <span class="type">Resistor</span>(<span class="variable">R</span>=<span class="number">1000</span>)
-  <span class="variable">capacitor</span> = <span class="type">Capacitor</span>(<span class="variable">C</span>=<span class="number">1e-6</span>)
-  <span class="variable">source</span> = <span class="type">StepVoltage</span>(<span class="variable">V</span>=<span class="number">5</span>)
-  <span class="variable">ground</span> = <span class="type">Ground</span>()
+  <span class="variable">resistor</span> = <span class="type">ElectricalComponents.Resistor</span>(<span class="variable">R</span>=<span class="number">1000</span>)
+  <span class="variable">capacitor</span> = <span class="type">ElectricalComponents.Capacitor</span>(<span class="variable">C</span>=<span class="number">1e-6</span>)
+  <span class="variable">source</span> = <span class="type">ElectricalComponents.StepVoltage</span>(<span class="variable">V</span>=<span class="number">5</span>)
+  <span class="variable">ground</span> = <span class="type">ElectricalComponents.Ground</span>()
 
 <span class="keyword">relations</span>
   <span class="keyword">initial</span> <span class="variable">capacitor</span>.<span class="variable">v</span> = <span class="number">0</span>
@@ -1169,14 +1165,12 @@
 
                     <div class="comparison-block dyad">
                         <h3>Dyad</h3>
-                        <pre><span class="comment"># Using standard library</span>
-<span class="keyword">using</span> <span class="type">Dyad.Mechanical.Translational</span>
-
+                        <pre><span class="comment">"Using standard library"</span>
 <span class="keyword">component</span> <span class="type">MassSpringDamper</span>
-  <span class="variable">mass</span> = <span class="type">Mass</span>(<span class="variable">m</span>=<span class="number">1.0</span>)
-  <span class="variable">spring</span> = <span class="type">Spring</span>(<span class="variable">c</span>=<span class="number">100</span>)
-  <span class="variable">damper</span> = <span class="type">Damper</span>(<span class="variable">d</span>=<span class="number">10</span>)
-  <span class="variable">fixed</span> = <span class="type">Fixed</span>()
+  <span class="variable">mass</span> = <span class="type">TranslationalComponents.Mass</span>(<span class="variable">m</span>=<span class="number">1.0</span>)
+  <span class="variable">spring</span> = <span class="type">TranslationalComponents.Spring</span>(<span class="variable">c</span>=<span class="number">100</span>)
+  <span class="variable">damper</span> = <span class="type">TranslationalComponents.Damper</span>(<span class="variable">d</span>=<span class="number">10</span>)
+  <span class="variable">fixed</span> = <span class="type">TranslationalComponents.Fixed</span>()
 
 <span class="keyword">relations</span>
   <span class="keyword">initial</span> <span class="variable">mass</span>.<span class="variable">s</span> = <span class="number">1.0</span>
