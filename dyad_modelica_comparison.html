@@ -584,6 +584,11 @@
                             <td><code>sign(x)</code></td>
                         </tr>
                         <tr>
+                            <td>Special Functions</td>
+                            <td><code>Limited built-in</code></td>
+                            <td><code>besselj, gamma, erf, airy, etc.</code></td>
+                        </tr>
+                        <tr>
                             <td>Boolean AND</td>
                             <td><code>a and b</code></td>
                             <td><code>a && b</code></td>
@@ -615,6 +620,58 @@
                         </tr>
                     </tbody>
                 </table>
+
+                <h3>Special Functions</h3>
+                <div class="comparison-grid">
+                    <div class="comparison-block modelica">
+                        <h3>Modelica</h3>
+                        <pre><span class="comment">// Limited to built-in functions</span>
+<span class="keyword">model</span> <span class="type">SpecialFunctionExample</span>
+  <span class="type">Real</span> <span class="variable">x</span> = <span class="number">0.5</span>;
+  <span class="type">Real</span> <span class="variable">y1</span>, <span class="variable">y2</span>, <span class="variable">y3</span>;
+<span class="keyword">equation</span>
+  <span class="comment">// Standard functions available</span>
+  <span class="variable">y1</span> = <span class="function">sin</span>(<span class="variable">x</span>);
+  <span class="variable">y2</span> = <span class="function">exp</span>(<span class="variable">x</span>);
+  <span class="variable">y3</span> = <span class="function">sqrt</span>(<span class="variable">x</span>);
+  <span class="comment">// Special functions like Bessel, Gamma not built-in</span>
+<span class="keyword">end</span> <span class="type">SpecialFunctionExample</span>;</pre>
+                    </div>
+
+                    <div class="comparison-block dyad">
+                        <h3>Julia</h3>
+                        <pre><span class="keyword">using</span> <span class="type">SpecialFunctions</span>
+
+<span class="comment"># Register special functions for symbolic use</span>
+<span class="function">@register_symbolic</span> <span class="function">besselj</span>(<span class="variable">ν</span>, <span class="variable">x</span>)
+<span class="function">@register_symbolic</span> <span class="function">gamma</span>(<span class="variable">x</span>)
+<span class="function">@register_symbolic</span> <span class="function">erf</span>(<span class="variable">x</span>)
+<span class="function">@register_symbolic</span> <span class="function">erfc</span>(<span class="variable">x</span>)
+<span class="function">@register_symbolic</span> <span class="function">airyai</span>(<span class="variable">x</span>)
+<span class="function">@register_symbolic</span> <span class="function">airybi</span>(<span class="variable">x</span>)</pre>
+
+                        <h3>Dyad</h3>
+                        <pre><span class="comment"># Use special functions in Dyad components</span>
+<span class="keyword">component</span> <span class="type">SpecialFunctionExample</span>
+  <span class="keyword">variable</span> <span class="variable">x</span>::<span class="type">Real</span> = <span class="number">0.5</span>
+  <span class="keyword">variable</span> <span class="variable">y_standard</span>::<span class="type">Real</span>
+  <span class="keyword">variable</span> <span class="variable">y_bessel</span>::<span class="type">Real</span>
+  <span class="keyword">variable</span> <span class="variable">y_gamma</span>::<span class="type">Real</span>
+  <span class="keyword">variable</span> <span class="variable">y_erf</span>::<span class="type">Real</span>
+  <span class="keyword">variable</span> <span class="variable">y_airy</span>::<span class="type">Real</span>
+
+<span class="keyword">relations</span>
+  <span class="comment"># Standard functions work as usual</span>
+  <span class="variable">y_standard</span> = <span class="function">sin</span>(<span class="variable">x</span>) + <span class="function">exp</span>(<span class="variable">x</span>)
+
+  <span class="comment"># Special functions from SpecialFunctions.jl</span>
+  <span class="variable">y_bessel</span> = <span class="function">besselj</span>(<span class="number">0</span>, <span class="variable">x</span>)  <span class="comment"># Bessel function of first kind</span>
+  <span class="variable">y_gamma</span> = <span class="function">gamma</span>(<span class="variable">x</span>)         <span class="comment"># Gamma function</span>
+  <span class="variable">y_erf</span> = <span class="function">erf</span>(<span class="variable">x</span>)             <span class="comment"># Error function</span>
+  <span class="variable">y_airy</span> = <span class="function">airyai</span>(<span class="variable">x</span>)        <span class="comment"># Airy Ai function</span>
+<span class="keyword">end</span></pre>
+                    </div>
+                </div>
             </section>
 
             <!-- Defining Components Section -->
@@ -775,9 +832,9 @@
                     </div>
 
                     <div class="comparison-block dyad">
-                        <h3>Dyad</h3>
+                        <h3>Julia (MTK Generator)</h3>
                         <pre><span class="comment"># Julia function to generate MTK model</span>
-<span class="keyword">function</span> <span class="function">make_RLC</span>(<span class="variable">name</span>; <span class="variable">R</span>=<span class="number">1.0</span>, <span class="variable">L</span>=<span class="number">1.0</span>, <span class="variable">C</span>=<span class="number">1.0</span>)
+<span class="keyword">function</span> <span class="function">RLC</span>(<span class="variable">name</span>; <span class="variable">R</span>=<span class="number">1.0</span>, <span class="variable">L</span>=<span class="number">1.0</span>, <span class="variable">C</span>=<span class="number">1.0</span>)
   <span class="keyword">using</span> <span class="type">ModelingToolkit</span>
 
   @<span class="variable">variables</span> <span class="variable">t</span>
@@ -793,9 +850,10 @@
   <span class="keyword">end</span>
 
   <span class="keyword">return</span> <span class="type">System</span>(<span class="variable">eqs</span>, <span class="variable">t</span>, <span class="variable">name</span>=<span class="variable">name</span>)
-<span class="keyword">end</span>
+<span class="keyword">end</span></pre>
 
-<span class="keyword">using</span> <span class="type">ElectricalComponents</span>
+                        <h3>Dyad</h3>
+                        <pre><span class="keyword">using</span> <span class="type">ElectricalComponents</span>
 
 <span class="comment"># Define Dyad interface for RLC circuit</span>
 <span class="keyword">partial component</span> <span class="type">PartialRLC</span>
@@ -829,27 +887,52 @@
                     </div>
 
                     <div class="comparison-block dyad">
-                        <h3>Dyad</h3>
-                        <pre><span class="comment"># Define interface for FMU component</span>
-<span class="keyword">partial component</span> <span class="type">PartialMotorFMU</span>
-  <span class="keyword">parameter</span> <span class="variable">J</span>::<span class="type">Inertia</span> = <span class="number">0.1</span>
-  <span class="keyword">input</span> <span class="variable">tau</span>::<span class="type">Torque</span>
-  <span class="keyword">output</span> <span class="variable">w</span>::<span class="type">AngularVelocity</span>
-<span class="keyword">end</span>
+                        <h3>Julia (FMU Loader)</h3>
+                        <pre><span class="keyword">using</span> <span class="type">ModelingToolkit</span>, <span class="type">FMI</span>
 
-<span class="comment"># External component from FMU</span>
-<span class="keyword">external component</span> <span class="type">MotorFMU</span>
-  <span class="keyword">extends</span> <span class="type">PartialMotorFMU</span>
-<span class="keyword">end</span>
+<span class="keyword">function</span> <span class="function">FMUAdder</span>(<span class="variable">;</span> <span class="variable">name</span>, <span class="variable">params</span>...)
+  <span class="variable">fmu</span> = <span class="type">FMI</span>.<span class="function">loadFMU</span>(
+    <span class="function">joinpath</span>(
+      <span class="function">dirname</span>(<span class="function">dirname</span>(
+        <span class="type">Base</span>.<span class="function">pathof</span>(<span class="type">ModelingToolkit</span>)
+      )),
+      <span class="string">"test"</span>, <span class="string">"fmi"</span>, <span class="string">"fmus"</span>, <span class="string">"SimpleAdder.fmu"</span>
+    ),
+    <span class="variable">type</span> = <span class="symbol">:ME</span>
+  )::<span class="type">FMI.FMU2</span>
 
-<span class="comment"># Julia code to load FMU</span>
-<span class="keyword">function</span> <span class="function">make_MotorFMU</span>(<span class="variable">name</span>; <span class="variable">kwargs</span>...)
-  <span class="keyword">using</span> <span class="type">FMI</span>, <span class="type">FMIImport</span>
+  <span class="variable">component</span> = <span class="type">ModelingToolkit</span>.<span class="function">FMIComponent</span>(
+    <span class="function">Val</span>(<span class="number">2</span>);
+    <span class="variable">fmu</span>,
+    <span class="variable">name</span>,
+    <span class="variable">type</span> = <span class="symbol">:ME</span>,
+  )
 
-  <span class="variable">fmu</span> = <span class="function">loadFMU</span>(<span class="string">"motor.fmu"</span>)
-  <span class="variable">component</span> = <span class="type">FMIComponent</span>(<span class="variable">name</span>, <span class="variable">fmu</span>; <span class="variable">kwargs</span>...)
+  <span class="variable">default_keys</span> = <span class="function">keys</span>(<span class="type">ModelingToolkit</span>.<span class="function">get_defaults</span>(<span class="variable">component</span>))
+  <span class="keyword">for</span> (<span class="variable">param</span>, <span class="variable">value</span>) <span class="keyword">in</span> <span class="variable">params</span>
+    <span class="variable">param</span> <span class="keyword">in</span> <span class="variable">default_keys</span> ||
+      <span class="function">error</span>(<span class="string">"Parameter $param is not valid for FMU $name."</span>)
+    <span class="variable">param_symbol</span> = <span class="type">ModelingToolkit</span>.<span class="type">UnPack</span>.<span class="function">unpack</span>(
+      <span class="variable">component</span>, <span class="function">Val</span>(<span class="variable">param</span>)
+    )
+    <span class="type">ModelingToolkit</span>.<span class="function">get_defaults</span>(<span class="variable">component</span>)[<span class="variable">param_symbol</span>] =
+      <span class="variable">value</span>
+  <span class="keyword">end</span>
 
   <span class="keyword">return</span> <span class="variable">component</span>
+<span class="keyword">end</span></pre>
+
+                        <h3>Dyad</h3>
+                        <pre><span class="keyword">using</span> <span class="type">BlockComponents</span>
+
+<span class="comment"># External component interface matching FMU ports</span>
+<span class="keyword">external component</span> <span class="type">FMUAdder</span>
+  <span class="variable">a</span> = <span class="type">BlockComponents.RealInput</span>()
+  <span class="variable">b</span> = <span class="type">BlockComponents.RealInput</span>()
+  <span class="variable">c</span> = <span class="type">BlockComponents.RealInput</span>()
+  <span class="variable">out</span> = <span class="type">BlockComponents.RealOutput</span>()
+  <span class="variable">out2</span> = <span class="type">BlockComponents.RealOutput</span>()
+  <span class="keyword">parameter</span> <span class="variable">value</span>::<span class="type">Real</span> = <span class="number">1.0</span>
 <span class="keyword">end</span></pre>
                     </div>
                 </div>
@@ -952,12 +1035,22 @@
                     </div>
 
                     <div class="comparison-block dyad">
-                        <h3>Dyad</h3>
+                        <h3>Julia</h3>
                         <pre><span class="comment"># Call C functions with @ccall and register</span>
-<span class="function">my_c_function</span>(<span class="variable">x</span>::<span class="type">Real</span>) = <span class="function">@ccall</span> <span class="string">mylib.my_c_function</span>(<span class="variable">x</span>::<span class="type">Float64</span>)::<span class="type">Float64</span>
+<span class="function">my_c_function</span>(<span class="variable">x</span>::<span class="type">Real</span>) =
+  <span class="function">@ccall</span> <span class="string">mylib.my_c_function</span>(<span class="variable">x</span>::<span class="type">Float64</span>)::<span class="type">Float64</span>
 
 <span class="comment"># Register the function for symbolic use</span>
 <span class="function">@register_symbolic</span> <span class="function">my_c_function</span>(<span class="variable">x</span>)</pre>
+
+                        <h3>Dyad</h3>
+                        <pre><span class="comment"># Use the registered function in Dyad</span>
+<span class="keyword">component</span> <span class="type">MyModel</span>
+  <span class="keyword">variable</span> <span class="variable">y</span>::<span class="type">Real</span>
+  <span class="keyword">input</span> <span class="variable">u</span>::<span class="type">Real</span>
+<span class="keyword">relations</span>
+  <span class="variable">y</span> = <span class="function">my_c_function</span>(<span class="variable">u</span>)
+<span class="keyword">end</span></pre>
                     </div>
                 </div>
             </section>
