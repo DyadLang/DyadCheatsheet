@@ -1190,6 +1190,84 @@
 <span class="keyword">end</span></pre>
                     </div>
                 </div>
+
+                <h3>Neural Network Components</h3>
+                <div class="comparison-grid">
+                    <div class="comparison-block modelica">
+                        <h3>Modelica</h3>
+                        <pre><span class="comment">// Neural networks not natively supported</span>
+<span class="comment">// Would require external function interface</span>
+<span class="comment">// or FMU integration</span></pre>
+                    </div>
+
+                    <div class="comparison-block dyad">
+                        <h3>Julia (Neural Network Setup)</h3>
+                        <pre><span class="keyword">using</span> <span class="type">ModelingToolkitNeuralNets</span>
+<span class="keyword">using</span> <span class="type">Lux</span>, <span class="type">Random</span>
+
+<span class="comment"># Define neural network architecture</span>
+<span class="variable">nn</span> = <span class="type">Lux</span>.<span class="function">Chain</span>(
+  <span class="type">Dense</span>(<span class="number">2</span>, <span class="number">16</span>, <span class="variable">tanh</span>),
+  <span class="type">Dense</span>(<span class="number">16</span>, <span class="number">16</span>, <span class="variable">tanh</span>),
+  <span class="type">Dense</span>(<span class="number">16</span>, <span class="number">1</span>)
+)
+
+<span class="comment"># Initialize parameters</span>
+<span class="variable">rng</span> = <span class="type">Random</span>.<span class="function">default_rng</span>()
+<span class="variable">ps</span>, <span class="variable">st</span> = <span class="type">Lux</span>.<span class="function">setup</span>(<span class="variable">rng</span>, <span class="variable">nn</span>)
+
+<span class="comment"># Create neural network component</span>
+<span class="keyword">function</span> <span class="function">NeuralController</span>(<span class="variable">;</span> <span class="variable">name</span>, <span class="variable">params</span>=<span class="variable">ps</span>)
+  @<span class="variable">named</span> <span class="variable">neural_ode</span> = <span class="type">NeuralNetworkBlock</span>(
+    <span class="variable">nn</span>, <span class="variable">params</span>, <span class="variable">st</span>;
+    <span class="variable">n_inputs</span>=<span class="number">2</span>,
+    <span class="variable">n_outputs</span>=<span class="number">1</span>
+  )
+  <span class="keyword">return</span> <span class="variable">neural_ode</span>
+<span class="keyword">end</span></pre>
+
+                        <h3>Dyad</h3>
+                        <pre><span class="keyword">using</span> <span class="type">BlockComponents</span>
+
+<span class="comment"># External neural network component</span>
+<span class="keyword">external component</span> <span class="type">NeuralController</span>
+  <span class="keyword">input</span> <span class="variable">error</span>::<span class="type">Real</span>
+  <span class="keyword">input</span> <span class="variable">derivative_error</span>::<span class="type">Real</span>
+  <span class="keyword">output</span> <span class="variable">control_signal</span>::<span class="type">Real</span>
+<span class="keyword">end</span>
+
+<span class="comment"># Use in control system</span>
+<span class="keyword">component</span> <span class="type">NeuralControlSystem</span>
+  <span class="comment"># Plant model</span>
+  <span class="variable">plant</span> = <span class="type">TranslationalComponents.Mass</span>(<span class="variable">m</span>=<span class="number">1.0</span>)
+
+  <span class="comment"># Neural network controller</span>
+  <span class="variable">controller</span> = <span class="type">NeuralController</span>()
+
+  <span class="comment"># Reference and feedback</span>
+  <span class="variable">reference</span> = <span class="type">BlockComponents.StepSignal</span>(<span class="variable">height</span>=<span class="number">1.0</span>)
+  <span class="variable">sensor</span> = <span class="type">TranslationalComponents.PositionSensor</span>()
+
+  <span class="keyword">variable</span> <span class="variable">error</span>::<span class="type">Real</span>
+  <span class="keyword">variable</span> <span class="variable">der_error</span>::<span class="type">Real</span>
+
+<span class="keyword">relations</span>
+  <span class="comment"># Calculate error</span>
+  <span class="variable">error</span> = <span class="variable">reference</span>.<span class="variable">y</span> - <span class="variable">sensor</span>.<span class="variable">s</span>
+  <span class="variable">der_error</span> = <span class="function">der</span>(<span class="variable">error</span>)
+
+  <span class="comment"># Connect to neural controller</span>
+  <span class="variable">controller</span>.<span class="variable">error</span> = <span class="variable">error</span>
+  <span class="variable">controller</span>.<span class="variable">derivative_error</span> = <span class="variable">der_error</span>
+
+  <span class="comment"># Apply control</span>
+  <span class="variable">plant</span>.<span class="variable">f</span> = <span class="variable">controller</span>.<span class="variable">control_signal</span>
+
+  <span class="comment"># Connect sensor</span>
+  <span class="function">connect</span>(<span class="variable">plant</span>.<span class="variable">flange</span>, <span class="variable">sensor</span>.<span class="variable">flange</span>)
+<span class="keyword">end</span></pre>
+                    </div>
+                </div>
             </section>
 
             <!-- Analysis Points Section -->

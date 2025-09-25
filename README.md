@@ -1,77 +1,31 @@
-# Scientific Modeling Cheatsheet
+# Dyad vs Modelica Cheatsheet
 
-A comprehensive quick reference guide comparing MATLAB, Python, and Julia for scientific computing and modeling tasks.
+A comprehensive quick reference guide comparing Dyad (Julia-based modeling) and Modelica for acausal component-based modeling and simulation.
 
-### [View the Cheatsheet](https://sciml.github.io/Scientific_Modeling_Cheatsheet/scientific_modeling_cheatsheet)
+### [View the Cheatsheet](dyad_modelica_comparison.html)
 
 ## 📚 Overview
 
-This cheatsheet provides side-by-side comparisons of common scientific computing operations across three major platforms:
-- **MATLAB** - The traditional choice for engineering and scientific computing
-- **Python** - Using NumPy, SciPy, PyTorch, and SymPy for scientific computing
-- **Julia** - Modern high-performance scientific computing with unified ecosystem
+This cheatsheet provides side-by-side comparisons of modeling approaches between:
+- **Dyad** - New Scientific Machine Learning (SciML) and AI-enhanced modeling language.
+- **Modelica** - Object-oriented modeling language for complex systems
 
 ### Topics Covered
 
-#### Basic Operations
-- Vector/Matrix creation and manipulation
-- Linear algebra operations (eigenvalues, decompositions)
-- Array indexing and slicing
-- Mathematical operations
+- **Basic Syntax**
+- **Defining Components**
+- **Data Inputs & Interpolation**
+- **Components & Models**
+- **Functions & Algorithms**
+- **Analysis Points**
+- **Analyzing Models**
+- **Composite Models using Standard Library**
 
-#### Scientific Computing
-- **Differential Equations**
-  - ODEs (Ordinary Differential Equations)
-  - DAEs (Differential-Algebraic Equations)
-  - Mass matrix formulations
-  - Stiff systems
+## 🧪 Examples
 
-- **Nonlinear Solving**
-  - Root finding
-  - Systems of nonlinear equations
-
-- **Optimization**
-  - Unconstrained optimization
-  - Gradient-based methods
-
-- **Automatic Differentiation**
-  - Forward mode
-  - Reverse mode (gradients)
-  - Comparison of different AD systems
-
-- **Symbolic Computing**
-  - Symbolic math operations
-  - Code generation from symbolic expressions
-
-- **Component-Based Modeling**
-  - System definition
-  - Automatic simplification and index reduction
-  - Acausal component modeling
-
-- **Numerical Integration**
-  - Quadrature methods
-  - Adaptive integration
-
-## ⚠️ Important Notes
-
-### Python Ecosystem Fragmentation
-The Python scientific computing ecosystem has compatibility issues between different libraries:
-- **SymPy** symbolic objects are incompatible with NumPy arrays and PyTorch tensors
-- **PyTorch**, **TensorFlow**, and **JAX** use incompatible array types
-- **SciPy** lacks native DAE support (use Assimulo or CasADi for DAEs)
-- Each automatic differentiation system is isolated from others
-
-### Julia Unified Ecosystem
-Julia provides a more unified experience:
-- ModelingToolkit integrates with all DifferentialEquations.jl solvers
-- Automatic differentiation works seamlessly across packages
-- Symbolic and numeric computing can be mixed naturally
-
-## 🧪 Testing
-
-Test scripts are available in the `test/` directory:
-- `test_julia_examples.jl` - Tests all Julia code examples
-- `test_python_examples.py` - Tests all Python code examples
+Example models are provided in the cheatsheet demonstrating:
+- Simple electrical circuits (RC, RLC)
+- Mechanical systems (mass-spring-damper)
 
 ## 🤝 Contributing
 
@@ -82,10 +36,14 @@ Contributions are welcome! Please feel free to submit pull requests with:
 
 ## 🔗 Resources
 
-- [Julia Documentation](https://docs.julialang.org)
+### Dyad/Julia
+- [Dyad Documentation](https://help.juliahub.com/dyad/dev/)
+- [ModelingToolkit.jl Documentation](https://docs.sciml.ai/ModelingToolkit/stable/)
 - [DifferentialEquations.jl](https://docs.sciml.ai/DiffEqDocs/stable/)
-- [ModelingToolkit.jl](https://docs.sciml.ai/ModelingToolkit/stable/)
-- [NumPy Documentation](https://numpy.org/doc/)
-- [SciPy Documentation](https://docs.scipy.org/doc/scipy/)
-- [PyTorch Documentation](https://pytorch.org/docs/)
-- [MATLAB Documentation](https://www.mathworks.com/help/matlab/)
+- [Julia Documentation](https://docs.julialang.org)
+
+### Modelica
+- [Modelica Language Specification](https://modelica.org/documents)
+- [Modelica Standard Library](https://github.com/modelica/ModelicaStandardLibrary)
+- [OpenModelica](https://openmodelica.org/)
+- [Dymola](https://www.3ds.com/products-services/catia/products/dymola/)
