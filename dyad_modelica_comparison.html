@@ -387,6 +387,8 @@
                 <ul>
                     <li><a href="#basics">Basic Syntax</a></li>
                     <li><a href="#defining-components">Defining Components</a></li>
+                    <li><a href="#data-inputs">Data Inputs & Interpolation</a></li>
+                    <li><a href="#components">Components & Models</a></li>
                     <li><a href="#functions">Functions & Algorithms</a></li>
                     <li><a href="#analysis-points">Analysis Points</a></li>
                     <li><a href="#analyzing-models">Analyzing Models</a></li>
@@ -876,6 +878,141 @@
 <span class="keyword">end</span></pre>
                     </div>
                 </div>
+            </section>
+
+            <!-- Data Inputs & Interpolation Section -->
+            <section id="data-inputs" class="section">
+                <h2>Data Inputs & Interpolation</h2>
+
+                <h3>Data Interpolation From Array</h3>
+                <div class="comparison-grid">
+                    <div class="comparison-block modelica">
+                        <h3>Modelica</h3>
+                        <pre><span class="comment">// Using CombiTable for data input</span>
+<span class="keyword">model</span> <span class="type">DataInterpolation</span>
+  <span class="type">Modelica.Blocks.Sources.CombiTable1D</span> <span class="variable">table</span>(
+    <span class="variable">table</span>=[<span class="number">0</span>, <span class="number">0</span>; <span class="number">1</span>, <span class="number">2</span>; <span class="number">2</span>, <span class="number">3</span>; <span class="number">3</span>, <span class="number">1</span>],
+    <span class="variable">smoothness</span>=<span class="type">Modelica.Blocks.Types.Smoothness</span>.<span class="variable">LinearSegments</span>
+  );
+  <span class="type">Real</span> <span class="variable">y</span>;
+<span class="keyword">equation</span>
+  <span class="variable">table</span>.<span class="variable">u</span>[<span class="number">1</span>] = <span class="variable">time</span>;
+  <span class="variable">y</span> = <span class="variable">table</span>.<span class="variable">y</span>[<span class="number">1</span>];
+<span class="keyword">end</span> <span class="type">DataInterpolation</span>;</pre>
+                    </div>
+
+                    <div class="comparison-block dyad">
+                        <h3>Julia (Data Setup)</h3>
+                        <pre><span class="keyword">using</span> <span class="type">DyadData</span>
+
+<span class="variable">dataset</span> = <span class="function">DyadDataset</span>(
+  [<span class="number">0</span> <span class="number">0</span>; <span class="number">1</span> <span class="number">2</span>; <span class="number">2</span> <span class="number">3</span>; <span class="number">3</span> <span class="number">1</span>],
+  <span class="variable">dependent_vars</span>=[<span class="string">"y"</span>],
+  <span class="variable">independent_var</span>=<span class="string">"t"</span>
+)</pre>
+
+                        <h3>Dyad</h3>
+                        <pre><span class="keyword">using</span> <span class="type">BlockComponents</span>
+
+<span class="keyword">component</span> <span class="type">DataInterpolation</span>
+  <span class="comment"># Linear interpolation table</span>
+  <span class="variable">table</span> = <span class="type">BlockComponents.Interpolation1D</span>(
+    <span class="variable">interpolation_type</span>=<span class="type">LinearInterpolation</span>,
+    <span class="variable">dataset</span>=<span class="variable">dataset</span>,
+    <span class="variable">dependent_var</span>=<span class="string">"y"</span>
+  )
+
+  <span class="comment"># Time source</span>
+  <span class="variable">time_source</span> = <span class="type">BlockComponents.TimeSignal</span>()
+
+  <span class="comment"># Output signal</span>
+  <span class="keyword">variable</span> <span class="variable">y</span>::<span class="type">Real</span>
+
+<span class="keyword">relations</span>
+  <span class="comment"># Connect time to table input</span>
+  <span class="function">connect</span>(<span class="variable">time_source</span>.<span class="variable">y</span>, <span class="variable">table</span>.<span class="variable">u</span>)
+
+  <span class="comment"># Get interpolated output</span>
+  <span class="variable">y</span> = <span class="variable">table</span>.<span class="variable">y</span>
+<span class="keyword">end</span></pre>
+                    </div>
+                </div>
+
+                <h3>Data Interpolation From CSV</h3>
+                <div class="comparison-grid">
+                    <div class="comparison-block modelica">
+                        <h3>Modelica</h3>
+                        <pre><span class="comment">// Using CombiTable with external file</span>
+<span class="keyword">model</span> <span class="type">CSVInterpolation</span>
+  <span class="type">Modelica.Blocks.Sources.CombiTable1D</span> <span class="variable">table</span>(
+    <span class="variable">tableName</span>=<span class="string">"myData"</span>,
+    <span class="variable">fileName</span>=<span class="string">"data.txt"</span>,
+    <span class="variable">columns</span>={<span class="number">2</span>, <span class="number">3</span>},  <span class="comment">// Use columns 2 and 3</span>
+    <span class="variable">smoothness</span>=<span class="type">Modelica.Blocks.Types.Smoothness</span>.<span class="variable">ContinuousDerivative</span>
+  );
+  <span class="type">Real</span> <span class="variable">temperature</span>, <span class="variable">pressure</span>;
+<span class="keyword">equation</span>
+  <span class="variable">table</span>.<span class="variable">u</span>[<span class="number">1</span>] = <span class="variable">time</span>;
+  <span class="variable">temperature</span> = <span class="variable">table</span>.<span class="variable">y</span>[<span class="number">1</span>];
+  <span class="variable">pressure</span> = <span class="variable">table</span>.<span class="variable">y</span>[<span class="number">2</span>];
+<span class="keyword">end</span> <span class="type">CSVInterpolation</span>;</pre>
+                    </div>
+
+                    <div class="comparison-block dyad">
+                        <h3>Julia (Data Setup)</h3>
+                        <pre><span class="keyword">using</span> <span class="type">DyadData</span>, <span class="type">CSV</span>, <span class="type">DataFrames</span>
+
+<span class="comment"># Load CSV file</span>
+<span class="variable">df</span> = <span class="type">CSV</span>.<span class="function">read</span>(<span class="string">"data.csv"</span>, <span class="type">DataFrame</span>)
+
+<span class="comment"># Create dataset from DataFrame</span>
+<span class="variable">dataset</span> = <span class="function">DyadDataset</span>(
+  <span class="variable">df</span>,
+  <span class="variable">dependent_vars</span>=[<span class="string">"temperature"</span>, <span class="string">"pressure"</span>],
+  <span class="variable">independent_var</span>=<span class="string">"time"</span>
+)</pre>
+
+                        <h3>Dyad</h3>
+                        <pre><span class="keyword">using</span> <span class="type">BlockComponents</span>
+
+<span class="keyword">component</span> <span class="type">CSVInterpolation</span>
+  <span class="comment"># Temperature interpolator</span>
+  <span class="variable">temp_table</span> = <span class="type">BlockComponents.Interpolation1D</span>(
+    <span class="variable">interpolation_type</span>=<span class="type">CubicSpline</span>,
+    <span class="variable">dataset</span>=<span class="variable">dataset</span>,
+    <span class="variable">dependent_var</span>=<span class="string">"temperature"</span>
+  )
+
+  <span class="comment"># Pressure interpolator</span>
+  <span class="variable">pressure_table</span> = <span class="type">BlockComponents.Interpolation1D</span>(
+    <span class="variable">interpolation_type</span>=<span class="type">CubicSpline</span>,
+    <span class="variable">dataset</span>=<span class="variable">dataset</span>,
+    <span class="variable">dependent_var</span>=<span class="string">"pressure"</span>
+  )
+
+  <span class="comment"># Time source</span>
+  <span class="variable">time_source</span> = <span class="type">BlockComponents.TimeSignal</span>()
+
+  <span class="comment"># Output signals</span>
+  <span class="keyword">variable</span> <span class="variable">temperature</span>::<span class="type">Real</span>
+  <span class="keyword">variable</span> <span class="variable">pressure</span>::<span class="type">Real</span>
+
+<span class="keyword">relations</span>
+  <span class="comment"># Connect time to interpolators</span>
+  <span class="function">connect</span>(<span class="variable">time_source</span>.<span class="variable">y</span>, <span class="variable">temp_table</span>.<span class="variable">u</span>)
+  <span class="function">connect</span>(<span class="variable">time_source</span>.<span class="variable">y</span>, <span class="variable">pressure_table</span>.<span class="variable">u</span>)
+
+  <span class="comment"># Get interpolated outputs</span>
+  <span class="variable">temperature</span> = <span class="variable">temp_table</span>.<span class="variable">y</span>
+  <span class="variable">pressure</span> = <span class="variable">pressure_table</span>.<span class="variable">y</span>
+<span class="keyword">end</span></pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Continue with Components Section -->
+            <section id="components" class="section">
+                <h2>Components & Models</h2>
 
                 <h3>FMU Components</h3>
                 <div class="comparison-grid">
