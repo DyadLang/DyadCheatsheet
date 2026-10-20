@@ -2,7 +2,7 @@
 
 A comprehensive quick reference guide comparing Dyad (Julia-based modeling) and Modelica for acausal component-based modeling and simulation.
 
-### [View the Cheatsheet](dyad_modelica_comparison.html)
+### [View the Cheatsheet](https://raw.githack.com/DyadLang/DyadCheatsheet/main/dyad_modelica_comparison.html)
 
 ## 📚 Overview
 
